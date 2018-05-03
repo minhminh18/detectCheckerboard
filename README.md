@@ -1,33 +1,33 @@
 # detectCheckerboard
 Utilize Tensorflow to detect checkerboards
 
-# Assuming that you have your data saved in 'annotations' and 'images' folders. You can check 'examples' folder to see how they look like
-# Inside project folder, do the followings steps
+Assuming that you have your data saved in 'annotations' and 'images' folders. You can check 'examples' folder to see how they look like
+Inside project folder, do the followings steps
 
-# 1. Install TensorFlow API
+1. Install TensorFlow API
 git clone https://github.com/tensorflow/models.git
 cd models/research/
 protoc object_detection/protos/*.proto --python_out=.
 export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
 
-# 2. Split the data into training and evauation using split_labels.py
-# 3. Convert data to TFRecord
-# https://github.com/datitran/raccoon_dataset/blob/master/generate_tfrecord.py with necessary modifications
-# From project folder, run
+2. Split the data into training and evauation using split_labels.py
+3. Convert data to TFRecord
+https://github.com/datitran/raccoon_dataset/blob/master/generate_tfrecord.py with necessary modifications
+From project folder, run
 python generate_tfrecord.py --csv_input=data/train_labels.csv  --output_path=train.record
 python generate_tfrecord.py --csv_input=data/test_labels.csv  --output_path=test.record
 
-# 4. Download a model from model zoo
-# https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md
+4. Download a model from model zoo
+https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md
 
-# 5. Choose a model and configure the pipeline accordingly
+5. Choose a model and configure the pipeline accordingly
 ```
 tf_record_input_reader {
   input_path: "/usr/home/username/data/train.record"
 }
 label_map_path: "/usr/home/username/data/label_map.pbtxt"
 ```
-# Configuring the trainer
+Configuring the trainer
 ```
 batch_size: 1
 optimizer {
@@ -62,14 +62,14 @@ data_augmentation_options {
 }
 ```
 
-# 6. Run training, data folder contains the train.record file
+6. Run training, data folder contains the train.record file
 python models/research/object_detection/train.py --logtostderr --train_dir=${PATH_TO_TRAIN_DIR} \
 	--pipeline_config_path=${PATH_TO_YOUR_PIPELINE_CONFIG}
-# In this project, the pipeline_config can be found under 'data' folder
+In this project, the pipeline_config can be found under 'data' folder
 
-# 7. Stop the training with Ctrl+C when the loss reaches about 1
+7. Stop the training with Ctrl+C when the loss reaches about 1
 
-# 8. Export the graph for reference
+8. Export the graph for reference
 python models/research/object_detection/export_inference_graph.py \
     --input_type image_tensor \
     --pipeline_config_path ${PATH_TO_YOUR_PIPELINE_CONFIG} \
