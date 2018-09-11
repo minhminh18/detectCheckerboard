@@ -5,23 +5,57 @@ Assuming that you have your data saved in 'annotations' and 'images' folders. Yo
 Inside project folder, do the followings steps
 
 1. Install TensorFlow API
-git clone https://github.com/tensorflow/models.git
 
-cd models/research/
+```
+    cd <project_folder> 
+    git clone https://github.com/tensorflow/models.git
+    cd models/research/
+    protoc object_detection/protos/*.proto --python_out=.
+    export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
+```
 
-protoc object_detection/protos/*.proto --python_out=.
+2. Split the data into training and evaluation sets.
+* Create a folder name 'data' inside the working directory.
+* Use the script __xml_to_csv.py__ to read all names of the images.
+```
+    python xml_to_csv.py  
+```
+The console will output "Successfully converted xml to csv."
 
-export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
+* Run the script __split_labels.py__
+```
+    python split_labels.py
+``` 
+The console will show "Successfully splitted the labels."
+The data folder will look like
+```
+    data
+    |-- checkerboard_labels.csv
+    |-- test_labels.csv
+    |-- train_labels.csv
+```
 
-2. Split the data into training and evauation using split_labels.py
-3. Convert data to TFRecord
-https://github.com/datitran/raccoon_dataset/blob/master/generate_tfrecord.py with necessary modifications
-From project folder, run
-python generate_tfrecord.py --csv_input=data/train_labels.csv  --output_path=train.record
-python generate_tfrecord.py --csv_input=data/test_labels.csv  --output_path=test.record
+3. Convert data to [TFRecord](https://github.com/datitran/raccoon_dataset/blob/master/generate_tfrecord.py) with some 
+necessary modifications. From project folder, run
+```
+    python generate_tfrecord.py --csv_input=data/train_labels.csv  --output_path=data/train.record
+    python generate_tfrecord.py --csv_input=data/test_labels.csv  --output_path=data/test.record
+```
+The process will take a while. An error "No module named "object_detection"" arises, you can either move the script and 
+run it inside the module with suitable modification for the argument of *--csv_input* or copy the folder "object_detection"
+ from "models/research/" to the running directory.
+ 
+4. Create label map "label_map.pbtxt" <https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/running_locally.md>
+```
+item {
+    id = 1
+    name = "checkerboard"
+}
+```
 
-4. Download a model from model zoo
+5. Download a model from model zoo
 https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md
+E.g: ssd_mobilenet_v1_coco
 
 5. Choose a model and configure the pipeline accordingly
 ```
