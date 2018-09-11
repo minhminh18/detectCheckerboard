@@ -6,8 +6,11 @@ Inside project folder, do the followings steps
 
 1. Install TensorFlow API
 git clone https://github.com/tensorflow/models.git
+
 cd models/research/
+
 protoc object_detection/protos/*.proto --python_out=.
+
 export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
 
 2. Split the data into training and evauation using split_labels.py
