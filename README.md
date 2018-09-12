@@ -175,15 +175,14 @@ the model required more time to reduce loss. After about 4000 steps, the converg
 
 ## Problems and troubleshooting
 1. Sufficiency of images:
-
-A typical training process requires upto thousand of images and the [variation of the background](http://aiweirdness.com/post/171451900302/do-neural-nets-dream-of-electric-sheep "electric sheep") 
+  A typical training process requires upto thousand of images and the [variation of the background](http://aiweirdness.com/post/171451900302/do-neural-nets-dream-of-electric-sheep "electric sheep") 
 influences significantly
 on the result of the training. Hence, it is recommended to prepare enough images. A method to test your batch of images is 
 using classification model. After [preparing the images](https://github.com/minhminhng/preparing_training_images "preparing images"), you can 
 run  
 ```bash
     python tensorflow/examples/image_retraining/retrain.py\
-    --image_dir ~/<path_to_the_project>/data/ --learning_rate=0.0001\ --testing_percentage=20 --validation_percentage=20 
+    --image_dir ~/<path_to_the_project>/data/ --learning_rate=0.0001\ --testing_percentage=20 --validation_percentage=20\ 
     --train_batch_size=32 --validation_batch_size=-1  --flip_left_right True --random_scale=30\
     --random_brightness=30 --eval_step_interval=100\ --how_many_training_steps=1000  --architecture mobilenet_1.0_224
 
