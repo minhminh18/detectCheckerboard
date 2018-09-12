@@ -56,8 +56,8 @@ necessary modifications. [Converting data](https://www.oreilly.com/ideas/object-
 3. Create label map [*"label_map.pbtxt"*](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/running_locally.md)
 ```
     item {
-        id = 1
-        name = "checkerboard"
+        id : 1
+        name : 'checkerboard'
     }
 ```
 
@@ -71,13 +71,15 @@ which are different versions of the model created during training.
     model{
       ssd{
          num_classes: 1
-    ...
+        ...
        }
     }
     train_config:{
+        batch_size : 1
+        ...
         fine_tune_checkpoint: "<path_to_the_checkpoint>/model.ckpt"
         from_detection_checkpoint: true
-    ... 
+        ... 
     }
     train_input_reader:{
         tf_record_input_reader {
@@ -90,6 +92,7 @@ which are different versions of the model created during training.
             input_path: "<path_to_the_project>/data/test.record"
         }
         label_map_path: "<path_to_the_project>/data/label_map.pbtxt"
+        shuffle : true
     }
 ```
 * The number of class needs to be changed in accordance with how many object we intend to train. In this project, it was set to 1.
@@ -103,8 +106,9 @@ They record the information of the training process including weights. If a trai
 
 6. Run training, data folder contains the *train.record* file
 ```bash
-    python models/research/object_detection/train.py --logtostderr --train_dir=${PATH_TO_TRAIN_DIR} \
-        --pipeline_config_path=${PATH_TO_YOUR_PIPELINE_CONFIG}
+    cd ../..
+    python models/research/object_detection/train.py --logtostderr --train_dir=/<path_to_the_project>/data/\
+        --pipeline_config_path=/<path_to_the_project>/training/pipeline.config
 ```
 In this project, the *pipeline_config* can be found under *'data'* folder
 
@@ -121,7 +125,7 @@ In this project, the *pipeline_config* can be found under *'data'* folder
 _####_ - will be replace with a checkpoint number.
 
 The function generated a graph in pb ([protocol buffer](https://github.com/protocolbuffers/protobuf)) 
-format which serialize structured data, define parameters for the callable methods. The [graph](https://github.com/protocolbuffers/protobuf) 
+format which serializes structured data, defines parameters for the callable methods. The [graph](https://github.com/protocolbuffers/protobuf) 
 contains the model architecture and weights. Multiple checkpoints can be tested for the best performance.
 9. The result can be illustrated using another batch of testing images and run the script **object_detection.py**. 
 In the script, modify the following code in accordance with your project: 
@@ -131,7 +135,7 @@ In the script, modify the following code in accordance with your project:
     PATH_TO_CKPT = <path_to_the_project> + '/training/train/frozen_inference_graph.pb'
     PATH_TO_LABELS = os.path.join(<path_to_the_project>, 'data/label_map.pbtxt')
     ...
-    PATH_TO_TEST_IMAGES_DIR = <path_to_the_project> + 'data/test/checkerboard_test'
+    PATH_TO_TEST_IMAGES_DIR = <path_to_the_project> + <path_to_testing_file>
 ```
 
 ## Result
@@ -198,3 +202,11 @@ to
 ```
       is_training=True, regularize_depthwise=True)):
 ```
+
+## Note
+This instruction can only be used in an older version or tensorflow API due to some internal change inside 
+object_detection module. Therein, after downloading, run
+```
+    git checkout 32e7d660a813c11da61a2ad35055d85df8f14b63 
+``` 
+then, repeat the step in Installation.
