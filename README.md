@@ -66,7 +66,7 @@ e.g, ssd_mobilenet_v1_coco. They are stored as [checkpoints](https://www.tensorf
 which are different versions of the model created during training.
 
 
-5. Choose a model and configure the pipeline accordingly
+5. Choose a model and configure the pipeline accordingly:
 ```
     model{
       ssd{
@@ -102,15 +102,18 @@ which are different versions of the model created during training.
   * model.ckpt-{checkpoint_number}.data-0000-of-00001, 
   * model.ckpt-{checkpoint_number}.meta, and
   * model.ckpt-{checkpoint_number}.ckpt.index.
-They record the information of the training process including weights. If a training process in postponed unintentionaly, it can be continue from the previous saved checkpoint.
+  
+    They record the information of the training process including weights. If a training process in postponed unintentionaly, it can be continue from the previous saved checkpoint.
 
+* <path_to_the_checkpoint> indicates the path including your downloaded model.
 6. Run training, data folder contains the *train.record* file
 ```bash
     cd ../..
     python models/research/object_detection/train.py --logtostderr --train_dir=/<path_to_the_project>/data/\
         --pipeline_config_path=/<path_to_the_project>/training/pipeline.config
 ```
-In this project, the *pipeline_config* can be found under *'data'* folder
+In this project, the *pipeline_config* can be found under *'data'* folder.
+The folder containing the checkpoint should be different from the **--train_dir**.
 
 7. Stop the training with Ctrl+C when the loss reaches approximately 1.
 
