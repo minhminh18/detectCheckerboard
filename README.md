@@ -75,8 +75,8 @@ which are different versions of the model created during training.
        }
     }
     train_config:{
-      fine_tune_checkpoint: "<path_to_the_checkpoint>/model.ckpt"
-    from_detection_checkpoint: true
+        fine_tune_checkpoint: "<path_to_the_checkpoint>/model.ckpt"
+        from_detection_checkpoint: true
     ... 
     }
     train_input_reader:{
@@ -101,41 +101,6 @@ which are different versions of the model created during training.
   * model.ckpt-{checkpoint_number}.ckpt.index.
 They record the information of the training process including weights. If a training process in postponed unintentionaly, it can be continue from the previous saved checkpoint.
 
-Configuring the trainer
-```
-    batch_size: 1
-    optimizer {
-      momentum_optimizer: {
-        learning_rate: {
-          manual_step_learning_rate {
-            initial_learning_rate: 0.0002
-            schedule {
-              step: 0
-              learning_rate: .0002
-            }
-            schedule {
-              step: 900000
-              learning_rate: .00002
-            }
-            schedule {
-              step: 1200000
-              learning_rate: .000002
-            }
-          }
-        }
-        momentum_optimizer_value: 0.9
-      }
-      use_moving_average: false
-    }
-    fine_tune_checkpoint: "<path_to_the_project>/.../tmp/model.ckpt-#####"
-    from_detection_checkpoint: true
-    gradient_clipping_by_norm: 10.0
-    data_augmentation_options {
-      random_horizontal_flip {
-      }
-    }
-```
-
 6. Run training, data folder contains the *train.record* file
 ```bash
     python models/research/object_detection/train.py --logtostderr --train_dir=${PATH_TO_TRAIN_DIR} \
@@ -150,9 +115,11 @@ In this project, the *pipeline_config* can be found under *'data'* folder
     python models/research/object_detection/export_inference_graph.py \
         --input_type image_tensor \
         --pipeline_config_path ${PATH_TO_YOUR_PIPELINE_CONFIG} \
-        --trained_checkpoint_prefix ${PATH_TO_TRAIN_DIR}/model.ckpt-3179 \
+        --trained_checkpoint_prefix ${PATH_TO_TRAIN_DIR}/model.ckpt-#### \
         --output_directory object_detection_graph
 ```
+_####_ - will be replace with a checkpoint number.
+
 The function generated a graph in pb ([protocol buffer](https://github.com/protocolbuffers/protobuf)) 
 format which serialize structured data, define parameters for the callable methods. The [graph](https://github.com/protocolbuffers/protobuf) 
 contains the model architecture and weights. Multiple checkpoints can be tested for the best performance.
@@ -175,7 +142,8 @@ the model required more time to reduce loss. After about 4000 steps, the converg
 
 ## Problems and troubleshooting
 1. Sufficiency of images:
-  A typical training process requires upto thousand of images and the [variation of the background](http://aiweirdness.com/post/171451900302/do-neural-nets-dream-of-electric-sheep "electric sheep") 
+
+A typical training process requires upto thousand of images and the [variation of the background](http://aiweirdness.com/post/171451900302/do-neural-nets-dream-of-electric-sheep "electric sheep") 
 influences significantly
 on the result of the training. Hence, it is recommended to prepare enough images. A method to test your batch of images is 
 using classification model. After [preparing the images](https://github.com/minhminhng/preparing_training_images "preparing images"), you can 
@@ -221,6 +189,7 @@ More information can be found at <https://hackernoon.com/creating-insanely-fast-
 4. *TypeError: pred must be a Tensor, or a Python bool, or 1 or 0. Found instead: None*
 
 change 109 line in **ssd_mobilenet_v1_feature_extractor.py**:
+
 from
 ```
        is_training=None, regularize_depthwise=True)):
