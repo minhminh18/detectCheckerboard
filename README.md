@@ -2,22 +2,26 @@
 Utilize Tensorflow to detect checkerboards in the images with fine tuned model.
 
 ## Prerequisite
-Your system have **tensorflow** installed. It is recommended to install with *anaconda*. Additionally, using CUDA will speed up 
+Your system have **tensorflow** installed. It is recommended to install with *anaconda*. Additionally, using CUDA will speed up
 the training process.
 
 ## Installation
 Assuming that you have your data saved in *'annotations'* and *'images'* folders. You can check *'examples'* folder to see how they look like
-inside project folder, do the followings steps (remember to replace *<path_to_the_project>* accordingly):
+inside project folder, do the followings steps (remember to replace *<path_to_the_project>* accordingly).
 
-1. Install TensorFlow API
+
+Install TensorFlow API
 
 ```
-    cd <project_folder> 
+    cd <project_folder>
     git clone https://github.com/tensorflow/models.git
+    git checkout 32e7d660a813c11da61a2ad35055d85df8f14b63
     cd models/research/
     protoc object_detection/protos/*.proto --python_out=.
     export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
 ```
+**Note**:
+This instruction can only be used in an older version of tensorflow API due to some internal change inside *object_detection* module. Hence the checkout step is necessary.
 
 ## Training
 1. Split the data into training and evaluation sets.
@@ -31,7 +35,7 @@ The console will output *"Successfully converted xml to csv."*
 * Run the script __split_labels.py__
 ```
     python split_labels.py
-``` 
+```
 The console will show *"Successfully splitted the labels."*
 The data folder will look like
 ```
@@ -41,7 +45,7 @@ The data folder will look like
     |-- train_labels.csv
 ```
 
-2. Convert data to [TFRecord](https://github.com/datitran/raccoon_dataset/blob/master/generate_tfrecord.py) with some 
+2. Convert data to [TFRecord](https://github.com/datitran/raccoon_dataset/blob/master/generate_tfrecord.py) with some
 necessary modifications. [Converting data](https://www.oreilly.com/ideas/object-detection-with-tensorflow)
  provides the training process a high pace of accessing data comparing to reading
  directly each image.From project folder, run
@@ -49,10 +53,10 @@ necessary modifications. [Converting data](https://www.oreilly.com/ideas/object-
     python generate_tfrecord.py --csv_input=data/train_labels.csv  --output_path=data/train.record
     python generate_tfrecord.py --csv_input=data/test_labels.csv  --output_path=data/test.record
 ```
-  The process will take a while. An error "No module named "object_detection"" arises, you can either move the script and 
+  The process will take a while. An error "No module named "object_detection"" arises, you can either move the script and
   run it inside the module with suitable modification for the argument of *--csv_input* or copy the folder "object_detection"
   from "models/research/" to the running directory.
- 
+
 3. Create label map [*"label_map.pbtxt"*](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/running_locally.md)
 ```
     item {
@@ -61,8 +65,8 @@ necessary modifications. [Converting data](https://www.oreilly.com/ideas/object-
     }
 ```
 
-4. Download a model from [model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md), 
-e.g, ssd_mobilenet_v1_coco. They are stored as [checkpoints](https://www.tensorflow.org/guide/checkpoints) 
+4. Download a model from [model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md),
+e.g, ssd_mobilenet_v1_coco. They are stored as [checkpoints](https://www.tensorflow.org/guide/checkpoints)
 which are different versions of the model created during training.
 
 
@@ -79,7 +83,7 @@ which are different versions of the model created during training.
         ...
         fine_tune_checkpoint: "<path_to_the_checkpoint>/model.ckpt"
         from_detection_checkpoint: true
-        ... 
+        ...
     }
     train_input_reader:{
         tf_record_input_reader {
@@ -97,12 +101,12 @@ which are different versions of the model created during training.
 ```
 * The number of class needs to be changed in accordance with how many object we intend to train. In this project, it was set to 1.
 * The directories are modified in accordance with the location of the files.
-* The checkpoint typically includes three files: 
+* The checkpoint typically includes three files:
   * checkpoint
-  * model.ckpt-{checkpoint_number}.data-0000-of-00001, 
+  * model.ckpt-{checkpoint_number}.data-0000-of-00001,
   * model.ckpt-{checkpoint_number}.meta, and
   * model.ckpt-{checkpoint_number}.ckpt.index.
-  
+
     They record the information of the training process including weights. If a training process in postponed unintentionaly, it can be continue from the previous saved checkpoint.
 
 * <path_to_the_checkpoint> indicates the path including your downloaded model.
@@ -127,11 +131,11 @@ The folder containing the checkpoint should be different from the **--train_dir*
 ```
 _####_ - will be replace with a checkpoint number.
 
-The function generated a graph in pb ([protocol buffer](https://github.com/protocolbuffers/protobuf)) 
-format which serializes structured data, defines parameters for the callable methods. The [graph](https://github.com/protocolbuffers/protobuf) 
+The function generated a graph in pb ([protocol buffer](https://github.com/protocolbuffers/protobuf))
+format which serializes structured data, defines parameters for the callable methods. The [graph](https://github.com/protocolbuffers/protobuf)
 contains the model architecture and weights. Multiple checkpoints can be tested for the best performance.
-9. The result can be illustrated using another batch of testing images and run the script **object_detection.py**. 
-In the script, modify the following code in accordance with your project: 
+9. The result can be illustrated using another batch of testing images and run the script **object_detection.py**.
+In the script, modify the following code in accordance with your project:
 ```
     MODEL_NAME = 'ssd_mobilenet_v1_coco_2017_11_17'
     ...
@@ -142,22 +146,22 @@ In the script, modify the following code in accordance with your project:
 ```
 
 ## Result
-* The training stage consumes in general about more than one hour. 
-* In training TensorFlow model converges quickly. It reduced from approximately 12 to 3 after about 200 steps. After that, 
+* The training stage consumes in general about more than one hour.
+* In training TensorFlow model converges quickly. It reduced from approximately 12 to 3 after about 200 steps. After that,
 the model required more time to reduce loss. After about 4000 steps, the convergence hardly decreased. The loss of almost 1.0 was achieved after more than 10000 steps. However, sometimes it could increase which may be a result of overfitting.
 
 
 ## Problems and troubleshooting
 1. Sufficiency of images:
 
-A typical training process requires upto thousand of images and the [variation of the background](http://aiweirdness.com/post/171451900302/do-neural-nets-dream-of-electric-sheep "electric sheep") 
+A typical training process requires upto thousand of images and the [variation of the background](http://aiweirdness.com/post/171451900302/do-neural-nets-dream-of-electric-sheep "electric sheep")
 influences significantly
-on the result of the training. Hence, it is recommended to prepare enough images. A method to test your batch of images is 
-using classification model. After [preparing the images](https://github.com/minhminhng/preparing_training_images "preparing images"), you can 
+on the result of the training. Hence, it is recommended to prepare enough images. A method to test your batch of images is
+using classification model. After [preparing the images](https://github.com/minhminhng/preparing_training_images "preparing images"), you can
 run  
 ```bash
     python tensorflow/examples/image_retraining/retrain.py\
-    --image_dir ~/<path_to_the_project>/data/ --learning_rate=0.0001\ --testing_percentage=20 --validation_percentage=20\ 
+    --image_dir ~/<path_to_the_project>/data/ --learning_rate=0.0001\ --testing_percentage=20 --validation_percentage=20\
     --train_batch_size=32 --validation_batch_size=-1  --flip_left_right True --random_scale=30\
     --random_brightness=30 --eval_step_interval=100\ --how_many_training_steps=1000  --architecture mobilenet_1.0_224
 
@@ -165,16 +169,16 @@ run
 The parameters can be modified corresponding to the data set:
 * learning rate: commonly sufficient at 0.0001. A lower learning rate can output better result but consume more time.
 * testing_percentage: normally chosen at 20 to 25 percents.
-* train_batch_size: smaller value takes longer time but larger value can hang the process if the processor can not 
+* train_batch_size: smaller value takes longer time but larger value can hang the process if the processor can not
 handle a large amount of data.
-* flip_left_right: set to True to increase the variation of the images. However, checkerboard is a symmetric pattern, 
+* flip_left_right: set to True to increase the variation of the images. However, checkerboard is a symmetric pattern,
 this parameter is not necessary.
-* how_many_training_steps: the higher this value, the higher the accuracy of the classification result but it will 
+* how_many_training_steps: the higher this value, the higher the accuracy of the classification result but it will
 saturate at some level meaning that the accuracy of the model can not be improved higher with the current data set
-* architecture: different architectures of MobileNet can be tried. The first value is the width multiplier which 
-can be 1.0, 0.75, 0.50, or 0.25. The end value is the resolution of the image which can be 224, 192, 160, or 128. 
-The higher values of width multiplier and resolution can result in better classification accuracy but the training may 
-consume more time as a trade-off. Choosing those values is typically dependent on the size of the data set, the requirement 
+* architecture: different architectures of MobileNet can be tried. The first value is the width multiplier which
+can be 1.0, 0.75, 0.50, or 0.25. The end value is the resolution of the image which can be 224, 192, 160, or 128.
+The higher values of width multiplier and resolution can result in better classification accuracy but the training may
+consume more time as a trade-off. Choosing those values is typically dependent on the size of the data set, the requirement
 of accuracy, the experience of the user.
 
 More information can be found at <https://hackernoon.com/creating-insanely-fast-image-classifiers-with-mobilenet-in-tensorflow-f030ce0a2991?gi=71ea783ae893>
@@ -205,11 +209,3 @@ to
 ```
       is_training=True, regularize_depthwise=True)):
 ```
-
-## Note
-This instruction can only be used in an older version or tensorflow API due to some internal change inside 
-object_detection module. Therein, after downloading, run
-```
-    git checkout 32e7d660a813c11da61a2ad35055d85df8f14b63 
-``` 
-then, repeat the step in Installation.
